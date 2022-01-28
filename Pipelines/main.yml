@@ -1,0 +1,167 @@
+parameters:
+- name: EnvironmentType
+  type: string
+  values: 
+  - AzureDEV
+  - AzureTST
+  - AzureACC
+  - AzurePRD
+- name: serviceConnectionName
+  type: string
+  values:
+  - AzureDEV
+  - AzureTST
+  - AzureACC
+  - AzurePRD
+- name: location
+  type: string
+  values:
+  - westeurope
+- name: Department
+  type: string
+  values: 
+  - Xdepartment
+  - Ydepartment
+  - Zdepartment
+- name: rgPrefix
+  type: string
+  default: rg
+  values:
+  - rg
+- name: workload
+  type: string
+- name: createdBy
+  type: string
+- name: costCenter
+  type: string
+  values: 
+  - costCenterX
+  - costCenterY
+  - costCenterZ
+- name: OpsTeam
+  type: string
+- name: FuncTeam
+- name: BusinessConfidentiality
+  type: string
+  values:
+  - None-Public
+  - Low-BusinessConfidential
+  - Medium-Confidential
+  - High-Secret
+- name: BusinessAvailibility
+  type: string
+  values:
+  - None-Not-Necessary
+  - Low-Necessary
+  - Medium-Important
+  - High-Essential
+- name: BusinessIntegrity
+  type: string
+  values:
+  - None-Unprotected
+  - Low-Protected
+  - Medium-High
+  - High-Absolute
+
+stages:
+
+- ${{ if ne(parameters.environmentType, 'AzurePRD') }}:
+  - stage: Validate_${{parameters.environmentType}}_Resources
+    displayName: Validate (${{parameters.environmentType}} Environment) Resources
+    jobs:
+    - job: ValidateBicepCode
+      displayName: Validate Bicep code
+      steps:
+        - task: AzureCLI@2
+          name: RunPreflightValidation
+          displayName: Run preflight validation
+          inputs:
+            azureSubscription: ${{parameters.serviceConnectionName}}
+            scriptType: 'pscore'
+            scriptLocation: 'inlineScript'
+            inlineScript: |
+              az deployment sub validate `
+                --location ${{parameters.location}} `
+                --template-file $(Build.SourcesDirectory)/main.bicep `
+                --parameters EnvironmentType=${{parameters.EnvironmentType}} `
+                rgPrefix=${{parameters.rgPrefix}} `
+                Department=${{parameters.Department}} `
+                workload=${{parameters.workload}} `
+                createdBy=${{parameters.createdBy}} `
+                costCenter=${{parameters.costCenter}} `
+                OpsTeam=${{parameters.OpsTeam}} `
+                FuncTeam=${{parameters.FuncTeam}} `
+                BusinessAvailibility=${{parameters.BusinessAvailibility}} `
+                BusinessIntegrity=${{parameters.BusinessIntegrity}} `
+                BusinessConfidentiality=${{parameters.BusinessConfidentiality}} `
+                location=${{parameters.location}}
+
+
+- ${{ if eq(parameters.environmentType, 'AzurePRD') }}:
+  - stage: Preview_${{parameters.environmentType}}_Resources
+    displayName: Preview (${{parameters.EnvironmentType}} Environment) Resources
+    jobs:
+    - job: PreviewAzureChanges
+      displayName: Preview Azure changes
+      steps:
+        - task: AzureCLI@2
+          name: RunWhatIf
+          displayName: Run what-if
+          inputs:
+            azureSubscription: ${{parameters.serviceConnectionName}}
+            scriptType: 'pscore'
+            scriptLocation: 'inlineScript'
+            inlineScript: |
+              az deployment sub what-if `
+                --location ${{parameters.location}} `
+                --template-file $(Build.SourcesDirectory)/main.bicep `
+                --parameters EnvironmentType=${{parameters.EnvironmentType}} `
+                rgPrefix=${{parameters.rgPrefix}} `
+                Department=${{parameters.Department}} `
+                workload=${{parameters.workload}} `
+                createdBy=${{parameters.createdBy}} `
+                costCenter=${{parameters.costCenter}} `
+                OpsTeam=${{parameters.OpsTeam}} `
+                FuncTeam=${{parameters.FuncTeam}} `
+                BusinessAvailibility=${{parameters.BusinessAvailibility}} `
+                BusinessIntegrity=${{parameters.BusinessIntegrity}} `
+                BusinessConfidentiality=${{parameters.BusinessConfidentiality}} `
+                location=${{parameters.location}}
+              
+
+- stage: Deploy_${{parameters.EnvironmentType}}_Resources
+  displayName: Deploy (${{parameters.EnvironmentType}} Environment) Resources
+  jobs:
+  - deployment: DeployResources
+    displayName: Deploy Resources
+    environment: ${{parameters.EnvironmentType}}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+            - task: AzureCLI@2
+              name: DeployBicepFile
+              displayName: Deploy Bicep file
+              inputs:
+                azureSubscription: ${{parameters.serviceConnectionName}}
+                scriptType: 'pscore'
+                scriptLocation: 'inlineScript'
+                inlineScript: |
+                  az deployment sub create `
+                    --name $(Build.BuildNumber) `
+                    --template-file $(Build.SourcesDirectory)/main.bicep `
+                    --location ${{parameters.location}} `
+                    --parameters EnvironmentType=${{parameters.EnvironmentType}} `
+                      rgPrefix=${{parameters.rgPrefix}} `
+                      Department=${{parameters.Department}} `
+                      workload=${{parameters.workload}} `
+                      createdBy=${{parameters.createdBy}} `
+                      costCenter=${{parameters.costCenter}} `
+                      OpsTeam=${{parameters.OpsTeam}} `
+                      FuncTeam=${{parameters.FuncTeam}} `
+                      BusinessAvailibility=${{parameters.BusinessAvailibility}} `
+                      BusinessIntegrity=${{parameters.BusinessIntegrity}} `
+                      BusinessConfidentiality=${{parameters.BusinessConfidentiality}} `
+                      location=${{parameters.location}} 
+                    
