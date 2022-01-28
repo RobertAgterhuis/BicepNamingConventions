@@ -37,11 +37,6 @@ pool:
   
 stages:
 
-# Lint the Bicep file.
-#- stage: Lint
-#  jobs: 
-#  - template: ../Framework/codecheck/lint.yml
-
 
 
 # Example: Deploy Resources to the Azure Development Environment
