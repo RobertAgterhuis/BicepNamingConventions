@@ -1,0 +1,70 @@
+
+parameters:
+- name: serviceConnectionName
+  type: string
+- name: EnvironmentType
+  type: string  
+- name: rg
+  type: string
+- name: Location
+  type: string
+- name: tag1
+  type: string
+- name: tag2
+  type: string
+- name: tag3
+  type: string
+- name: Version
+  type: string
+- name: ArtifactName
+  type: string
+
+
+
+
+  
+stages:
+- stage: Build_${{parameters.ArtifactName}}
+  jobs:
+  - deployment: Build_${{parameters.ArtifactName}}
+    displayName: 'Publish Configuration Set Template Specs to Artifact'
+    environment:  ${{parameters.EnvironmentType}}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publishing Artifact'
+            inputs:
+              targetPath: '$(Build.SourcesDirectory)\Framework\configurationsets'
+              artifactType: 'pipeline'
+              artifact: '${{parameters.ArtifactName}}'
+              parallel: false 
+
+- stage: Deploy_${{parameters.ArtifactName}}
+  jobs:
+  - deployment: Deploy_${{parameters.ArtifactName}}
+    displayName: 'Deploy Configuration Set Template Specs Modules to Resource Group'
+    environment:  ${{parameters.EnvironmentType}}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Artifact'
+            inputs:
+              artifactName: '${{parameters.ArtifactName}}'
+              targetPath: $(Pipeline.Workspace)
+                    
+          - task: AzureCLI@2
+            displayName: 'Publish Resources Configuration Set Template Spec'
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              ScriptType: 'pscore'
+              scriptLocation: 'inlineScript' 
+              inlineScript:  az ts create  --name 'resources-config' --version ${{parameters.Version}} --resource-group ${{parameters.rg}} --location ${{parameters.Location}} --template-file '$(Pipeline.Workspace)/${{parameters.ArtifactName}}/resources.config.bicep' --version-description 'Configuration Set for Resources within Azure depending on Environment Type' --description 'Configuration Set for Resources within Azure depending on Environment Type' --tags ${{parameters.tag1}} ${{parameters.tag2}} ${{parameters.tag3}}
+
+          

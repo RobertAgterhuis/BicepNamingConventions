@@ -1,0 +1,136 @@
+
+parameters:
+- name: EnvironmentType
+  type: string
+  values: 
+  - AzureDEV
+  - AzureTST
+  - AzureACC
+  - AzurePRD
+- name: serviceConnectionName
+  type: string
+  values:
+  - AzureDEV
+  - AzureTST
+  - AzureACC
+  - AzurePRD
+- name: ArtifactName
+  type: string
+- name: Version
+  type: string
+- name: location
+  type: string
+  values:
+  - westeurope
+- name: Department
+  type: string
+  values: 
+  - Xdepartment
+  - Ydepartment
+  - Zdepartment
+- name: rgPrefix
+  type: string
+  default: rg
+  values:
+  - rg
+- name: workload
+  type: string
+- name: rg
+  type: string
+- name: createdBy
+  type: string
+- name: costCenter
+  type: string
+  values: 
+  - costCenterX
+  - costCenterY
+  - costCenterZ
+- name: OpsTeam
+  type: string
+- name: FuncTeam
+- name: BusinessConfidentiality
+  type: string
+  values:
+  - None-Public
+  - Low-BusinessConfidential
+  - Medium-Confidential
+  - High-Secret
+- name: BusinessAvailibility
+  type: string
+  values:
+  - None-Not-Necessary
+  - Low-Necessary
+  - Medium-Important
+  - High-Essential
+- name: BusinessIntegrity
+  type: string
+  values:
+  - None-Unprotected
+  - Low-Protected
+  - Medium-High
+  - High-Absolute
+
+  
+stages:
+- stage: Build_${{parameters.ArtifactName}}
+  jobs:
+  - deployment: Build_Build${{parameters.ArtifactName}}
+    displayName: 'Publish Names Template Specs to Artifact'
+    environment:  ${{parameters.EnvironmentType}}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publishing Artifact'
+            inputs:
+              targetPath: '$(Build.SourcesDirectory)\Framework\names'
+              artifactType: 'pipeline'
+              artifact: '${{parameters.ArtifactName}}'
+              parallel: false 
+
+- stage: Deploy_${{parameters.ArtifactName}}
+  jobs:
+  - deployment: Deploy_${{parameters.ArtifactName}}
+    displayName: 'Deploy Names Template Specs Modules to Resource Group'
+    environment:  ${{parameters.EnvironmentType}}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Artifact'
+            inputs:
+              artifactName: '${{parameters.ArtifactName}}'
+              targetPath: $(Pipeline.Workspace)
+                    
+          - task: AzureCLI@2
+            displayName: 'Publish Naming Convention Template Spec'
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              ScriptType: 'pscore'
+              scriptLocation: 'inlineScript'
+              inlineScript: az ts create `
+                --name 'convention-names' `
+                --version ${{parameters.Version}} `
+                --resource-group ${{parameters.rg}} `
+                --location ${{parameters.Location}} `
+                --template-file '$(Pipeline.Workspace)/${{parameters.ArtifactName}}/resources.names.bicep' `
+                --version-description 'Naming Convention for Integration Resources within Azure' `
+                --description 'Naming Convention for Integration Resources within Azure' `
+                --tags Department=${{parameters.Department}} `
+                workload=${{parameters.workload}} `
+                createdBy=${{parameters.createdBy}} `
+                costCenter=${{parameters.costCenter}} `
+                OpsTeam=${{parameters.OpsTeam}} `
+                FuncTeam=${{parameters.FuncTeam}} `
+                BusinessAvailibility=${{parameters.BusinessAvailibility}} `
+                BusinessIntegrity=${{parameters.BusinessIntegrity}} `
+                BusinessConfidentiality=${{parameters.BusinessConfidentiality}}
+               # location=${{parameters.location}}
+                
+
+          
