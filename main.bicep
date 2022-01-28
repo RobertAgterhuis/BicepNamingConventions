@@ -5,35 +5,7 @@
   DESCRIPTION:
     This main.bicep file creates a Resource Group within Azure and the resources within this group. 
     DO NOT CHANGE THE MANDATORY SECTION
-    Everything will be handeled from the start-pipeline.yml
-    Add the following yaml code to your start-pipeline.yaml to create the resource group with the declared resources
-   # Example: Deploy Resources to the development environment
-    # In this case a StorageAccount will be deployed after the completed pipeline look at the different configuration in DEV and PRD
-    - template: main.yml
-      parameters:
-      # serviceConnetionName allowed values: AzureDEV, AzureTST, AzureACC, AzurePRD
-      serviceConnectionName: AzureDEV
-      # environmentType allowed values: AzureDEV, AzureTST, AzureACC, AzurePRD
-      environmentType: AzureDEV
-      # location allowed values: westeurope 
-      location: westeurope
-      # rgPrefix allowed value: rg
-      rgPrefix: rg
-      # Department allowed values: departmentX,,departmentY, departmentZ
-      Department: departmentX
-      # Change the workload to your requirements this is the actual name of the service/product
-      workload: demo
-      # Fill in your name
-      createdBy: R.Agterhuis
-      # costCenter allowed values:  costCenterX, costCenterY, costCenterZ
-      costCenter: costCenterX
-      # OpsTeam: Technical responsible team
-      OpsTeam: DEVOPS
-      # Which data type
-      dataClassification: CodeBase
-      FuncTeam: Baan
-    
-      
+
 
   VERSION: 
     1.0.0
@@ -55,11 +27,9 @@ param rgPrefix string
 param createdBy string
 @description('Used for tagging this is a yaml pipeline parameter')
 @allowed([
-  'Studers'
-  'StudyStore'
-  'vanDijk'
-  'StudieShop'
-  'TLN'
+  'costCenterX'
+  'costCenterY'
+  'costCenterZ'
 ])
 param costCenter string
 @description('Used for tagging this is a yaml pipeline parameter')
