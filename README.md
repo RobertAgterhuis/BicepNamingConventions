@@ -49,8 +49,14 @@ This is the pipeline which will be configured to run within Azure DevOps. The st
 #### main.yml
 In the main.yml file there is a mandatary parameter section which must not be edited or deleted. If you do your pipeline will fail. This is because the parameters are expected in the start-pipeline.yml and they are also declared as a param in the main.bicep file
 
-#### names-templatesspec.yml
+#### names-template-spec.yml
 This yaml file takes the resources.names.bicep file and converts is to a the template-spec which will be placed in the resource group you've created with the main.yml. Also in this file there is a mandatory parameter section which can not be deleted. A part of this parameters is used for applying tagging to the resource.
+
+#### config-template-spec.yml
+This yaml pipeline takes the following files:
+- resources.config.bicep
+- storage.configurationset.bicep
+And converts them to a template-spec in the resourceGroup. Depending on Environment a configuration is applied. To achieve this approach you have to call the output and add the item to the Module param section. For an example of usage take a look at the storageModule in the main.bicep file
 
 ### Modules
 In this folder i place my bicep resource files which will be called as a module from the main.bicep file. For demontration purpose there are only the following files: 
@@ -142,6 +148,6 @@ Folder for the following files(s) which will be uploaded as a template-spec:
   For now the active template-spec for configuration settings depending on EnvironmentType. In the future will be split in to smaller ConfigurationSets
 
 #### codecheck
-Folder for yaml file: lint.yml This file will be called from the starter-pipeline. Does not really belong here. Must be place in folder: Pipelines but because in the future i want to use a shared yaml repo i dit not moved this file  
+Folder for yaml file: lint.yml This file will be called from the starter-pipeline. Does not really belong here. Must be place in folder: Pipelines but because in the future i want to use a shared yaml repo I dit not moved this file .
 
 
