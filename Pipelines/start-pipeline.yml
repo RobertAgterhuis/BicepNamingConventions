@@ -44,87 +44,36 @@ stages:
 
 
 
-# Deploy Resource Group to the development environment.
-# Creates a resource group within Azure
-# Modify the RG name in main.bicep to create a new one
-# - template: deploy-resource-group.yml
-#   parameters:
-#     environmentType: AzureDEV
-#     location: westeurope
-#     serviceConnectionName: AzureDEV
-#     rgPrefix: rg
-#     BusinessUnit: DevOps
-#     workload: BicepFramework
-#     createdBy: R.Agterhuis
-#     costCenter: IT
-#     OpsTeam: DEVOPS
-#     dataClassification: CodeBase
-
-
-
-
-
-# Deploy container registry to the DEV environment.
-# - template: deploy-container.yml
-#   parameters:
-#     environmentType: AzureDEV
-#     location: 'westeurope'
-#     serviceConnectionName: AzureDEV
-
-# Deploy Naming Convention to the DEV environment.
-# - template: publish-naming-convention.yml
-#   parameters:
-#     serviceConnectionName: AzureDEV
-#     rg: rg-IT-DEVOPS-BICEP-framework-DEV
-#     container: crbicepframeworkazuredev
-#     path: .azurecr.io/bicep/modules/
-#     version: v3.0 # The version number to publish to to Container Registry
-
-# Deploy Configuration Sets to the DEV environment.
-#- template: publish-configurationset.yml
-#  parameters:
-#    serviceConnectionName: AzureDEV
-#    rg: rg-IT-DEVOPS-BICEP-framework-DEV
-#    container: crbicepframeworkazuredev
-#    path: .azurecr.io/bicep/modules/
-#    version: v3.0 # # The version number to publish to to Container Registry
-
-
 # Example: Deploy Resources to the Azure Development Environment
 
-# - template: main.yml
-#   parameters:
-#     # serviceConnetionName allowed values: AzureDEV, AzureTST, AzureACC, AzurePRD
-#     serviceConnectionName: AzureDEV
-#     # environmentType allowed values: AzureDEV, AzureTST, AzureACC, AzurePRD
-#     environmentType: AzureDEV
-#     # Department allowed values: 
-#     #    finance
-#     #    hr 
-#     #    sales 
-#     #    customer-support 
-#     #    itsupport itops, itdev, itdevops, operations, bi (Used for Naming Convention)
-#     Department: itdevops
-#     # costCenter allowed values:  Studers, StudyStore, vanDijk, StudieShop, TLN (Used for Tagging and Naming Convention)
-#     costCenter: TLN
-#     # BusinessAvilability: Allowed Values: None-Not-Necessary,Low-Necessary, Medium-Important, High-Essential (Used for Tagging)
-#     BusinessAvailibility: Low-Necessary
-#     # BusinessIntegrity: Allowed Values: None-Unprotected, Low-Protected, Medium-High, High-Absolute. (Used for Tagging)
-#     BusinessIntegrity: Medium-High
-#     # BusinessConfidential: Allowed Values: None-Public, Low-BusinessConfidential, Medium-Confidential, High-Secret (Used for Tagging)
-#     BusinessConfidentiality: Medium-Confidential
-#     # location only allowed value: westeurope (Used for Resource Location)
-#     location: westeurope
-#     # rgPrefix only allowed value: rg (Used for Naming Convention)
-#     rgPrefix: rg
-#     # FunctTeam: Functional Owners (Used for Tagging)
-#     FuncTeam: itops
-#     # OpsTeam: Technical Owners (Used for Tagging)
-#     OpsTeam: DevOps
-#     # Change the workload to your requirements this is the actual name of the service/product (Used for Naming Convention)
-#     workload: BicepFramework
-#     # Fill in your name (Used for Tagging)
-#     createdBy: R.Agterhuis 
+- template: main.yml
+  parameters:
+    # serviceConnetionName allowed values: AzureDEV, AzureTST, AzureACC, AzurePRD
+    serviceConnectionName: AzureDEV
+    # environmentType allowed values: AzureDEV, AzureTST, AzureACC, AzurePRD
+    environmentType: AzureDEV
+    # Department allowed values: xDepartment, yDepartment, zDepartment   
+    Department: xDepartment
+    # costCenter allowed values:  costCenterX,costCenterY, costCenterZ
+    costCenter: costCenterX
+    # BusinessAvilability: Allowed Values: None-Not-Necessary,Low-Necessary, Medium-Important, High-Essential (Used for Tagging)
+    BusinessAvailibility: Low-Necessary
+    # BusinessIntegrity: Allowed Values: None-Unprotected, Low-Protected, Medium-High, High-Absolute. (Used for Tagging)
+    BusinessIntegrity: Medium-High
+    # BusinessConfidential: Allowed Values: None-Public, Low-BusinessConfidential, Medium-Confidential, High-Secret (Used for Tagging)
+    BusinessConfidentiality: Medium-Confidential
+    # location only allowed value: westeurope (Used for Resource Location)
+    location: westeurope
+    # rgPrefix only allowed value: rg (Used for Naming Convention)
+    rgPrefix: rg
+    # FunctTeam: Functional Owners (Used for Tagging)
+    FuncTeam: itops
+    # OpsTeam: Technical Owners (Used for Tagging)
+    OpsTeam: DevOps
+    # Change the workload to your requirements this is the actual name of the service/product (Used for Naming Convention)
+    workload: Demo
+    # Fill in your name (Used for Tagging)
+    createdBy: R.Agterhuis 
 
 # Deploy Naming Convention Template Specs to Resource Group to the development environment
 # Deploys naming conventions as template specs to a resource group, these naming conventions must be used
@@ -135,12 +84,12 @@ stages:
     environmentType: AzureDEV
     location: 'westeurope'
     ArtifactName: NamesTemplateSpecs
-    rg: rg-tln-itdevops-bicepframework-dev
+    rg: YOUR RGNAME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     Version: 'v1.0'
-    # Department allowed values: finance, hr, sales, customer-support, itsupport, itops, itdev, itdevops, operations, bi (Used for Naming Convention)
-    Department: itdevops
-    # costCenter allowed values:  Studers, StudyStore, vanDijk, StudieShop, TLN (Used for Tagging and Naming Convention)
-    costCenter: TLN
+    # Department allowed values: 
+    Department: xDepartment
+    # costCenter allowed values:  
+    costCenter: costCenterX
     # BusinessAvilability: Allowed Values: None-Not-Necessary,Low-Necessary, Medium-Important, High-Essential (Used for Tagging)
     BusinessAvailibility: Low-Necessary
     # BusinessIntegrity: Allowed Values: None-Unprotected, Low-Protected, Medium-High, High-Absolute. (Used for Tagging)
@@ -154,7 +103,7 @@ stages:
     # Fill in your name (Used for Tagging)
     createdBy: R.Agterhuis
     # Change the workload to your requirements this is the actual name of the service/product (Used for Naming Convention)
-    workload: BicepFramework 
+    workload: templatespecsdemo
 
 # Deploy Configuration Set Template Specs to Resource Group to the development environment
 # Deploys Configuration Sets as template specs to a resource group, depending on the EnvironmentType
@@ -162,14 +111,14 @@ stages:
 # Storage in AzurePRD will have a sku of: Standard_RAGZRS
 # Load these at the beginning of the resources.bicep an use the convention in your own module decleration
 # For example how to use see the DevOps Wiki
-# - template: create-configset-template-specs.yml
-#   parameters:
-#     serviceConnectionName: AzureDEV
-#     environmentType: AzureDEV
-#     location: 'westeurope'
-#     ArtifactName: ConfigTemplateSpecs
-#     rg: rg-tln-itdevops-bicepframework-dev
-#     Version: 'v1.0'
+- template: create-configset-template-specs.yml
+  parameters:
+    serviceConnectionName: AzureDEV
+    environmentType: AzureDEV
+    location: 'westeurope'
+    ArtifactName: ConfigTemplateSpecs
+    rg: YOUR RGNAME!!!!!!!!!!!!!!!!!!!!
+    Version: 'v1.0'
 
 
 
