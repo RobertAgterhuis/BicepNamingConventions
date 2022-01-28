@@ -30,9 +30,6 @@ trigger:
 pool:
   name: Azure Pipelines
   vmImage: windows-latest
-
-#container: mcr.microsoft.com/windows/servercore:ltsc2019
-
   
   
 stages:
