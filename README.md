@@ -57,8 +57,8 @@ In this folder i place my bicep resource files which will be called as a module 
 - storage.Account.bicep
 - rbac.lock.bicep
 
-#### storage.Account.bicep
-There are some mandatory settings in this file. These settings are nessecary to achieve the naming convention and tagging strategy. So again do not delete or change these values unless you are know what you're doing.
+#### storage.account.bicep
+There are some mandatory settings in this file. These settings are nessecary to achieve the naming convention and tagging strategy. So again do not delete or change these values unless you are know what you're doing. In the following code block you see these mandatory settings.
 ```
 targetScope = 'resourceGroup' // Default, but because there are also other target scopes i want to be sure
 param Location string = resourceGroup().location // Deploy the storage account to the same region as your Resource Group
@@ -77,5 +77,71 @@ param blobContainerDeleteRetentionPolicy bool //  Depending on Environment (Azur
 param blobDeleteRetentionPolicy bool //  Depending on Environment (AzureDEV, AzureTS, AzureACC or AzurePRD), configuration is contructed from storage-config template spec
 param fileServicesRetention bool //  Depending on Environment (AzureDEV, AzureTS, AzureACC or AzurePRD), configuration is contructed from storage-config template spec
 ```
+#### rbac.lock.bicep
+Bicep resurce for creating RBAC on the resource group and underlying resources. Before applying this configuration create manual the required Azure AD groups, and copy the ID's in the param.
+```
+// START: MANDATORY SECTION
+targetScope = 'resourceGroup'
+param LockLevel string // This parameter is retrieved from resources.config.bicep
+param EnvironmentType  string // This parameter is retrieved from the Yaml pipeline
+param LockUid string = uniqueString(EnvironmentType) // needed for creation of an Unique Lock name
+
+@description('principalId of the Role Group that will be given Reader access to the resourceGroup')
+param ReaderprincipalId string = 'AZURE AD ROLEGROUPID' // role-resourcegroupname-readers for now fixed value in future trough deployment script
+@description('roleDefinition to apply to the resourceGroup - default is Reader')
+param ReaderroleDefinitionId string = 'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Guid of the  BuiltIN Reader Role (Access control (IAM))
+param ReaderUid string = newGuid()
+@description('principalId of the Role Group that will be given Contribute access to the resourceGroup')
+param ContributorPrincipalId string = 'AZURE AD ROLEGROUPID' //role-resourcegroupname-contributors for now fixed value in future trough deployment script
+@description('roleDefinition to apply to the resourceGroup - Contributor')
+param ContributorRoleDefinitionId string = 'b24988ac-6180-42a0-ab88-20f7382dd24c' // Guid of the BuiltIN Contributor Role (Access control (IAM))
+param ContributorUid string = newGuid()
+@description('principalId of the Role Group that will be given Owner access to the resourceGroup')
+param OwnerPrincipalId string = 'AZURE AD ROLEGROUPID' // role-resourcegroupname-administrators for now fixed value in future trough deployment script
+@description('roleDefinition to apply to the resourceGroup - Owner')
+param OwnerRoleDefinitionId string = '8e3af657-a8ff-443c-a75c-2fe8c4bcb635' // Guid of the BuiltIN Owner Role (Access control (IAM))
+param OwnerUid string = newGuid()
+
+var ReaderUS = uniqueString('${ReaderUid}-${EnvironmentType}')
+@description('Unique name for the roleAssignment in the format of a guid')
+var ReaderRoleAssignmentName = guid(ReaderUS)
+var ContributorUS = uniqueString('${ContributorUid}-${EnvironmentType}')
+@description('Unique name for the roleAssignment in the format of a guid')
+var ContributorRoleAssignmentName  = guid(ContributorUS)
+@description('Unique name for the roleAssignment in the format of a guid')
+var OwnerRoleAssignmentName  = guid(OwnerUS)
+var OwnerUS = uniqueString('${OwnerUid}-${EnvironmentType}')
+
+// END: MANDATORY SECTION
+```
+**If-Deploy condition Resource Lock:** As you can see in the code block below, there is a if-deploy condition configured. In this case the Lock will only be applied if the Environment = AzureACC or AzurePRD. Be aware that there are implications when you're applying a Lock. Visit the Microsoft site for more information on this.
+```
+resource lockResource 'Microsoft.Authorization/locks@2016-09-01' = if ((EnvironmentType == 'AzureACC') || (EnvironmentType == 'AzurePRD') ) {
+  name: '${LockUid}-${LockLevel}'
+  dependsOn: [
+    OwnerRoleAssignmentResource
+  ]
+  properties:{
+    level: LockLevel
+    notes: 'This is ${EnvironmentType} therefore this resource should not be deleted.'
+  }
+}
+
+```
+
+### Framework
+In this folder i have placed 2 folders for all the bicep files which are use for creating the template-specs which will be uploaded to the resourceGroupName. It is to your own discretion to change these values to values that fits your requirements.
+
+#### names
+Folder for the following file(s) which will be uploaded as a template-spec:
+- resources.names.bicep 
+
+#### configurationsets
+Folder for the following files(s) which will be uploaded as a template-spec:
+- resources.config.bicep 
+  For now the active template-spec for configuration settings depending on EnvironmentType. In the future will be split in to smaller ConfigurationSets
+
+#### codecheck
+Folder for yaml file: lint.yml This file will be called from the starter-pipeline. Does not really belong here. Must be place in folder: Pipelines but because in the future i want to use a shared yaml repo i dit not moved this file  
 
 
