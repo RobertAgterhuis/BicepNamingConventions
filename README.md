@@ -18,6 +18,12 @@ Although there are several methods to achieve a naming convention within Azure, 
   - role-resourcegroupName-Readers
   - role-resourcegroupName-Contributors
   - role-resourcegroupName-Administrators
+ 
+ ## Usage
+ Clone this repo for your own usage.
+ 
+ ## Support
+ Although this approach works for me, i can imagine that it doesn't for you. I'm sorry but then you are on your own or use the world wide web for some background on Bicep. There is a lot of information to find.
   
 
 ## Repo structure
@@ -148,6 +154,6 @@ Folder for the following files(s) which will be uploaded as a template-spec:
   For now the active template-spec for configuration settings depending on EnvironmentType. In the future will be split in to smaller ConfigurationSets
 
 #### codecheck
-Folder for yaml file: lint.yml This file will be called from the starter-pipeline. Does not really belong here. Must be place in folder: Pipelines but because in the future i want to use a shared yaml repo I dit not moved this file .
+Folder for yaml file: lint.yml This file will be called from the starter-pipeline. Does not really belong here. Must be place in folder: Pipelines but because in the future i want to use a shared yaml repo I dit not moved this file.
 
 
