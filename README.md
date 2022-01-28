@@ -53,7 +53,7 @@ For demonstration purposes only the following resources will be created:
 This is the pipeline which will be configured to run within Azure DevOps. The start-pipeline.yml is in it self fully documented so further explanation is not nessecary in my opinion. This start-pipeline.yml is not much more then a parameter file which calls other yaml files for the actual execution of the pipeline.
 
 #### main.yml
-In the main.yml file there is a mandatary parameter section which must not be edited or deleted. If you do your pipeline will fail. This is because the parameters are expected in the start-pipeline.yml and they are also declared as a param in the main.bicep file
+In the main.yml file there is a mandatory parameter section which must not be edited or deleted. If you do your pipeline will fail. This is because the parameters are expected in the start-pipeline.yml and they are also declared as a param in the main.bicep file
 
 #### names-template-spec.yml
 This yaml file takes the resources.names.bicep file and converts is to a the template-spec which will be placed in the resource group you've created with the main.yml. Also in this file there is a mandatory parameter section which can not be deleted. A part of this parameters is used for applying tagging to the resource.
